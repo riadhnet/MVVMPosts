@@ -2,16 +2,18 @@ package test.riadh.mvvmposts.ui.post
 
 import android.view.View
 import androidx.lifecycle.MutableLiveData
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import test.riadh.mvvmposts.base.BaseViewModel
 import test.riadh.mvvmposts.model.Post
+import test.riadh.mvvmposts.model.PostDao
 import test.riadh.mvvmposts.network.PostApi
 import test.riadh.mvvmposts.utils.ExceptionUtil
 import javax.inject.Inject
 
-class PostListViewModel : BaseViewModel() {
+class PostListViewModel(private val postDao: PostDao) : BaseViewModel() {
     @Inject
     lateinit var postApi: PostApi
 
@@ -29,7 +31,16 @@ class PostListViewModel : BaseViewModel() {
 
 
     private fun loadPosts() {
-        subscription = postApi.getPosts()
+
+        subscription = Observable.fromCallable { postDao.all }
+            .concatMap { dbPostList ->
+                if (dbPostList.isEmpty()) {
+                    postApi.getPosts().concatMap { apiPostList ->
+                        postDao.insertAll(*apiPostList.toTypedArray())
+                        Observable.just(apiPostList)
+                    }
+                } else Observable.just(dbPostList)
+            }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { onRetrievePostListStart() }
@@ -38,7 +49,6 @@ class PostListViewModel : BaseViewModel() {
                 { result -> onRetrievePostListSuccess(result) },
                 { error -> onRetrievePostListError(error) }
             )
-
 
     }
 
@@ -57,7 +67,6 @@ class PostListViewModel : BaseViewModel() {
     }
 
     private fun onRetrievePostListError(error: Throwable) {
-        //errorMessage.value = R.string.post_error
         errorMessage.value = ExceptionUtil.showError(error)
     }
 
