@@ -2,20 +2,17 @@ package test.riadh.mvvmposts.ui.post
 
 import android.view.View
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import test.riadh.mvvmposts.base.BaseViewModel
 import test.riadh.mvvmposts.model.Post
 import test.riadh.mvvmposts.model.PostDao
-import test.riadh.mvvmposts.network.PostApi
+import test.riadh.mvvmposts.model.PostRepositoryImpl
 import test.riadh.mvvmposts.utils.ExceptionUtil
-import javax.inject.Inject
 
-class PostListViewModel(private val postDao: PostDao) : BaseViewModel() {
-    @Inject
-    lateinit var postApi: PostApi
+class PostListViewModel(private val postDao: PostDao, private val postApi: PostRepositoryImpl) : ViewModel() {
 
     private lateinit var subscription: Disposable
     val loadingVisibility: MutableLiveData<Int> = MutableLiveData()
@@ -28,7 +25,6 @@ class PostListViewModel(private val postDao: PostDao) : BaseViewModel() {
     init {
         loadPosts()
     }
-
 
     private fun loadPosts() {
 
@@ -51,7 +47,6 @@ class PostListViewModel(private val postDao: PostDao) : BaseViewModel() {
             )
 
     }
-
 
     private fun onRetrievePostListStart() {
         errorMessage.value = null

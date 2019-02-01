@@ -1,10 +1,10 @@
 package test.riadh.mvvmposts.ui.post
 
 import androidx.lifecycle.MutableLiveData
-import test.riadh.mvvmposts.base.BaseViewModel
+import androidx.lifecycle.ViewModel
 import test.riadh.mvvmposts.model.Post
 
-class PostViewModel: BaseViewModel() {
+class PostViewModel:  ViewModel() {
     private val postTitle = MutableLiveData<String>()
     private val postBody = MutableLiveData<String>()
 
