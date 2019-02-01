@@ -5,43 +5,41 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import test.riadh.mvvmposts.R
-import test.riadh.mvvmposts.databinding.*
-import test.riadh.mvvmposts.injection.ViewModelFactory
+import test.riadh.mvvmposts.databinding.ActivityPostListBinding
 
-class PostListActivity: AppCompatActivity() {
+class PostListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPostListBinding
-    private lateinit var viewModel: PostListViewModel
+
+
+    private val viewModel: PostListViewModel by viewModel()
 
     private var errorSnackbar: Snackbar? = null
 
-    override fun onCreate(savedInstanceState: Bundle?){
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_post_list)
-        binding.postList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        binding.postList.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
-        viewModel = ViewModelProviders.of(this, ViewModelFactory(this)).get(PostListViewModel::class.java)
-        viewModel.errorMessage.observe(this, Observer {
-                errorMessage -> if(errorMessage != null) showError(errorMessage) else hideError()
+        viewModel.errorMessage.observe(this, Observer { errorMessage ->
+            if (errorMessage != null) showError(errorMessage) else hideError()
         })
-
 
         binding.viewModel = viewModel
     }
 
-
-    private fun showError(@StringRes errorMessage:String){
+    private fun showError(@StringRes errorMessage: String) {
         errorSnackbar = Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_INDEFINITE)
         errorSnackbar?.setAction(R.string.retry, viewModel.errorClickListener)
         errorSnackbar?.show()
     }
 
-
-    private fun hideError(){
+    private fun hideError() {
         errorSnackbar?.dismiss()
     }
 }
