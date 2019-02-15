@@ -11,4 +11,7 @@ interface PostDao {
 
     @Insert
     fun insertAll(vararg posts: Post)
+
+    @Query("DELETE FROM post")
+    fun deleteAll()
 }
