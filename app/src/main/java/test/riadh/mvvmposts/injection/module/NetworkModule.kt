@@ -55,6 +55,7 @@ object NetworkModule {
             .build()
     }
 
+
 }
 
 val retrofitPostApi = NetworkModule.provideRetrofitInterface().create(PostApi::class.java)

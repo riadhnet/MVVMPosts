@@ -6,14 +6,22 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import test.riadh.mvvmposts.MyApp
+import test.riadh.mvvmposts.R
 import test.riadh.mvvmposts.base.BaseViewModel
+import test.riadh.mvvmposts.injection.module.AppContext
 import test.riadh.mvvmposts.model.Post
 import test.riadh.mvvmposts.model.PostDao
 import test.riadh.mvvmposts.network.PostApi
-import test.riadh.mvvmposts.utils.ExceptionUtil
 
 class PostListViewModel(private val postDao: PostDao, private val postApi: PostApi) : BaseViewModel() {
 
+    //TODO fix me
+//    @Inject
+//    lateinit var exceptionUtil: ExceptionUtil
+
+    @AppContext
+    lateinit var myApp: MyApp
 
     private lateinit var subscription: Disposable
     val loadingVisibility: MutableLiveData<Int> = MutableLiveData()
@@ -26,7 +34,6 @@ class PostListViewModel(private val postDao: PostDao, private val postApi: PostA
     init {
         loadPosts()
     }
-
 
     private fun loadPosts() {
 
@@ -65,7 +72,8 @@ class PostListViewModel(private val postDao: PostDao, private val postApi: PostA
     }
 
     private fun onRetrievePostListError(error: Throwable) {
-        errorMessage.value = ExceptionUtil.showError(error)
+        errorMessage.value = myApp.getResourceProvider().getString(R.string.not_found)
+        //  errorMessage.value = exceptionUtil.showError(error)
     }
 
     override fun onCleared() {

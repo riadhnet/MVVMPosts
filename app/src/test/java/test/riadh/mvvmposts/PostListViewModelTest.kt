@@ -13,10 +13,12 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import test.riadh.mvvmposts.app.MyApp
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import test.riadh.mvvmposts.model.Post
 import test.riadh.mvvmposts.model.PostDao
 import test.riadh.mvvmposts.network.PostApi
@@ -24,7 +26,9 @@ import test.riadh.mvvmposts.ui.post.PostListViewModel
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 
-
+@RunWith(
+    RobolectricTestRunner::class
+)
 class PostListViewModelTest {
 
     @get:Rule
@@ -37,7 +41,7 @@ class PostListViewModelTest {
     lateinit var postDao: PostDao
 
     @Mock
-    val myApp = MyApp()
+    lateinit var myApp: MyApp
 
 
     val post1 =
@@ -55,6 +59,7 @@ class PostListViewModelTest {
     @Before
     fun before() {
         MockitoAnnotations.initMocks(this)
+        myApp = RuntimeEnvironment.application as MyApp
         postDao = PostDaoImpl()
         Mockito.`when`(postApi.getPosts()).thenReturn(Observable.fromArray(postList))
 
