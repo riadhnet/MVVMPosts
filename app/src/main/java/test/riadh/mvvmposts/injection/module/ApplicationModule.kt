@@ -19,17 +19,4 @@ abstract class ApplicationModule(
     @AppContext
     abstract fun bindMyApp(myApp: MyApp): MyApp
 
-
-//    @Provides
-//    @Singleton
-//    fun providesApplicationContext(): Context {
-//        return applicationContext
-//    }
-//
-//
-//    @Provides
-//    fun providesExceptionUtil(): ExceptionUtil {
-//        return ExceptionUtil()
-//    }
-
 }

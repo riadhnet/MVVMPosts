@@ -3,6 +3,7 @@ package test.riadh.mvvmposts.injection.module
 import dagger.Module
 import dagger.Provides
 import test.riadh.mvvmposts.utils.ExceptionUtil
+import test.riadh.mvvmposts.utils.ExceptionUtilInterface
 import javax.inject.Singleton
 
 
@@ -10,10 +11,9 @@ import javax.inject.Singleton
 class DataModule(
 
 ) {
-
     @Provides
     @Singleton
-    fun providesExceptionUtil(): ExceptionUtil {
+    fun providesExceptionUtil(): ExceptionUtilInterface {
         return ExceptionUtil()
     }
 }

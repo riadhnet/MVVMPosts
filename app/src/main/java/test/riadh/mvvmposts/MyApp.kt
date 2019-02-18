@@ -1,32 +1,32 @@
 package test.riadh.mvvmposts
 
-import dagger.android.AndroidInjector
-import dagger.android.DaggerApplication
+import android.app.Application
 import test.riadh.mvvmposts.injection.DaggerMyAppComponent
 import test.riadh.mvvmposts.injection.MyAppComponent
 import test.riadh.mvvmposts.utils.ResourceProvider
 import java.lang.ref.WeakReference
 
-class MyApp : DaggerApplication() {
 
+class MyApp : Application() {
 
     private var mResourceProvider: ResourceProvider? = null
 
     companion object {
-        lateinit var instance: MyAppComponent
+        lateinit var instance: MyApp
             private set
+        lateinit var graph: MyAppComponent
     }
 
-
-    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
-        return DaggerMyAppComponent.builder()
-            .app(this)
-            .context(this)
-            .build()
-    }
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
+
+        graph = DaggerMyAppComponent.builder()
+            .context(this)
+            .build()
+
+
     }
 
     fun getResourceProvider(): ResourceProvider {

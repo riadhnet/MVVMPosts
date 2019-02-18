@@ -13,22 +13,17 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 import test.riadh.mvvmposts.model.Post
 import test.riadh.mvvmposts.model.PostDao
 import test.riadh.mvvmposts.network.PostApi
 import test.riadh.mvvmposts.ui.post.PostListViewModel
+import test.riadh.mvvmposts.utils.ExceptionUtil
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 
-@RunWith(
-    RobolectricTestRunner::class
-)
 class PostListViewModelTest {
 
     @get:Rule
@@ -37,34 +32,29 @@ class PostListViewModelTest {
     @Mock
     lateinit var postApi: PostApi
 
-    //@Mock
     lateinit var postDao: PostDao
 
     @Mock
-    lateinit var myApp: MyApp
+    lateinit var exceptionUtil: ExceptionUtil
 
 
-    val post1 =
+    private val post1 =
         Post(1, 1, "sunt aut facere repellat provident occaecati excepturi", "recusandae consequuntur expedita")
-    val post2 =
+    private val post2 =
         Post(2, 2, "sunt aut facere repellat provident occaecati excepturi", "recusandae consequuntur expedita")
-    val post3 =
+    private val post3 =
         Post(3, 3, "sunt aut facere repellat provident occaecati excepturi", "recusandae consequuntur expedita")
-    val post4 =
+    private val post4 =
         Post(4, 4, "sunt aut facere repellat provident occaecati excepturi", "recusandae consequuntur expedita")
 
-    val postList = listOf(post1, post2, post3, post4)
+    private val postList = listOf(post1, post2, post3, post4)
 
 
     @Before
     fun before() {
         MockitoAnnotations.initMocks(this)
-        myApp = RuntimeEnvironment.application as MyApp
         postDao = PostDaoImpl()
         Mockito.`when`(postApi.getPosts()).thenReturn(Observable.fromArray(postList))
-
-        //TODO fix me
-        //Mockito.`when`(MyApp.instance).thenReturn(MyApp())
 
         val immediate = object : Scheduler() {
             override fun scheduleDirect(@NonNull run: Runnable, delay: Long, @NonNull unit: TimeUnit): Disposable {
@@ -87,9 +77,8 @@ class PostListViewModelTest {
 
     @Test
     fun showDataFromApi() {
-        postDao.deleteAll()
 
-        val postListViewModel = PostListViewModel(postDao, postApi)
+        val postListViewModel = PostListViewModel(postDao, postApi, exceptionUtil)
         assertEquals("verify that post was saved in data base ", postList.size, postDao.all.size)
         assertEquals(
             "Check that adapter has correct number of rows ",
@@ -99,9 +88,7 @@ class PostListViewModelTest {
 
     }
 
-
 }
-
 
 private class PostDaoImpl : PostDao {
     var posts = mutableListOf<Post>()
@@ -116,6 +103,5 @@ private class PostDaoImpl : PostDao {
     override fun deleteAll() {
         this.posts.clear()
     }
-
 
 }
