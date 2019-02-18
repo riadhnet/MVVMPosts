@@ -45,7 +45,7 @@ object NetworkModule {
 
         val httpClient = OkHttpClient.Builder()
             .addInterceptor(httpLoggingInterceptor)
-            .build();
+            .build()
 
         return Retrofit.Builder()
             .client(httpClient)
@@ -54,4 +54,7 @@ object NetworkModule {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
             .build()
     }
+
 }
+
+val retrofitPostApi = NetworkModule.provideRetrofitInterface().create(PostApi::class.java)

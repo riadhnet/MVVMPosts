@@ -16,6 +16,7 @@ import org.junit.rules.TestRule
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import test.riadh.mvvmposts.app.MyApp
 import test.riadh.mvvmposts.model.Post
 import test.riadh.mvvmposts.model.PostDao
 import test.riadh.mvvmposts.network.PostApi
@@ -25,8 +26,6 @@ import java.util.concurrent.TimeUnit
 
 
 class PostListViewModelTest {
-//    @get:Rule
-//    var rule: TestRule = InstantTaskExecutorRule()
 
     @get:Rule
     var rule: TestRule = InstantTaskExecutorRule()
@@ -37,11 +36,30 @@ class PostListViewModelTest {
     //@Mock
     lateinit var postDao: PostDao
 
+    @Mock
+    val myApp = MyApp()
+
+
+    val post1 =
+        Post(1, 1, "sunt aut facere repellat provident occaecati excepturi", "recusandae consequuntur expedita")
+    val post2 =
+        Post(2, 2, "sunt aut facere repellat provident occaecati excepturi", "recusandae consequuntur expedita")
+    val post3 =
+        Post(3, 3, "sunt aut facere repellat provident occaecati excepturi", "recusandae consequuntur expedita")
+    val post4 =
+        Post(4, 4, "sunt aut facere repellat provident occaecati excepturi", "recusandae consequuntur expedita")
+
+    val postList = listOf(post1, post2, post3, post4)
+
 
     @Before
     fun before() {
         MockitoAnnotations.initMocks(this)
         postDao = PostDaoImpl()
+        Mockito.`when`(postApi.getPosts()).thenReturn(Observable.fromArray(postList))
+
+        //TODO fix me
+        //Mockito.`when`(MyApp.instance).thenReturn(MyApp())
 
         val immediate = object : Scheduler() {
             override fun scheduleDirect(@NonNull run: Runnable, delay: Long, @NonNull unit: TimeUnit): Disposable {
@@ -65,12 +83,14 @@ class PostListViewModelTest {
     @Test
     fun showDataFromApi() {
         postDao.deleteAll()
-        val post =
-            Post(1, 1, "sunt aut facere repellat provident occaecati excepturi", "recusandae consequuntur expedita")
-        Mockito.`when`(postApi.getPosts()).thenReturn(Observable.fromArray(listOf(post)))
-        val postListViewModel = PostListViewModel(postDao)
-        postListViewModel.postApi = postApi
-        assertEquals("verify that post was saved in data base ", 1, postDao.all.size)
+
+        val postListViewModel = PostListViewModel(postDao, postApi)
+        assertEquals("verify that post was saved in data base ", postList.size, postDao.all.size)
+        assertEquals(
+            "Check that adapter has correct number of rows ",
+            postList.size,
+            postListViewModel.postListAdapter.itemCount
+        )
 
     }
 

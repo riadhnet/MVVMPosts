@@ -11,11 +11,9 @@ import test.riadh.mvvmposts.model.Post
 import test.riadh.mvvmposts.model.PostDao
 import test.riadh.mvvmposts.network.PostApi
 import test.riadh.mvvmposts.utils.ExceptionUtil
-import javax.inject.Inject
 
-class PostListViewModel(private val postDao: PostDao) : BaseViewModel() {
-    @Inject
-    lateinit var postApi: PostApi
+class PostListViewModel(private val postDao: PostDao, private val postApi: PostApi) : BaseViewModel() {
+
 
     private lateinit var subscription: Disposable
     val loadingVisibility: MutableLiveData<Int> = MutableLiveData()
