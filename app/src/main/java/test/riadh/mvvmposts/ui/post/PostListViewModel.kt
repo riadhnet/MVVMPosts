@@ -10,7 +10,6 @@ import io.reactivex.schedulers.Schedulers
 import test.riadh.mvvmposts.model.Post
 import test.riadh.mvvmposts.model.PostDao
 import test.riadh.mvvmposts.model.PostRepositoryImpl
-import test.riadh.mvvmposts.utils.ExceptionUtil
 
 class PostListViewModel(private val postDao: PostDao, private val postApi: PostRepositoryImpl) : ViewModel() {
 
@@ -31,9 +30,9 @@ class PostListViewModel(private val postDao: PostDao, private val postApi: PostR
         subscription = Observable.fromCallable { postDao.all }
             .concatMap { dbPostList ->
                 if (dbPostList.isEmpty()) {
-                    postApi.getPosts().concatMap { apiPostList ->
+                    postApi.getPosts().map { apiPostList ->
                         postDao.insertAll(*apiPostList.toTypedArray())
-                        Observable.just(apiPostList)
+                        apiPostList
                     }
                 } else Observable.just(dbPostList)
             }
@@ -62,7 +61,7 @@ class PostListViewModel(private val postDao: PostDao, private val postApi: PostR
     }
 
     private fun onRetrievePostListError(error: Throwable) {
-        errorMessage.value = ExceptionUtil.showError(error)
+        errorMessage.value = "toto"// ExceptionUtil.showError(error)
     }
 
     override fun onCleared() {

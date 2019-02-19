@@ -7,10 +7,9 @@ import test.riadh.mvvmposts.app.MyApp
 import java.net.ConnectException
 
 
-class ExceptionUtil {
+object ExceptionUtil {
 
 
-    companion object {
 
         fun showError(throwable: Throwable): String {
 
@@ -35,7 +34,6 @@ class ExceptionUtil {
         }
 
 
-    }
 
 
 }
