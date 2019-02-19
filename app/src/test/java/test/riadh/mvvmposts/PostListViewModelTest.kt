@@ -20,7 +20,7 @@ import test.riadh.mvvmposts.model.Post
 import test.riadh.mvvmposts.model.PostDao
 import test.riadh.mvvmposts.network.PostApi
 import test.riadh.mvvmposts.ui.post.PostListViewModel
-import test.riadh.mvvmposts.utils.ExceptionUtil
+import test.riadh.mvvmposts.utils.ExceptionUtilInterface
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 
@@ -35,7 +35,7 @@ class PostListViewModelTest {
     lateinit var postDao: PostDao
 
     @Mock
-    lateinit var exceptionUtil: ExceptionUtil
+    lateinit var exceptionUtil: ExceptionUtilInterface
 
 
     private val post1 =
@@ -78,7 +78,7 @@ class PostListViewModelTest {
     @Test
     fun showDataFromApi() {
 
-        val postListViewModel = PostListViewModel(postDao, postApi, exceptionUtil)
+        val postListViewModel = PostListViewModel(postDao, postApi)
         assertEquals("verify that post was saved in data base ", postList.size, postDao.all.size)
         assertEquals(
             "Check that adapter has correct number of rows ",

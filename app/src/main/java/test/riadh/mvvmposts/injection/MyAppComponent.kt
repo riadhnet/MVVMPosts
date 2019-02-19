@@ -4,17 +4,16 @@ package test.riadh.mvvmposts.injection
 import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
-import test.riadh.mvvmposts.injection.module.ApplicationModule
 import test.riadh.mvvmposts.injection.module.DataModule
-import test.riadh.mvvmposts.utils.ExceptionUtil
+import test.riadh.mvvmposts.utils.ExceptionUtilInterface
 import javax.inject.Singleton
 
 
 @Singleton
-@Component(modules = [ApplicationModule::class, DataModule::class])
+@Component(modules = [DataModule::class])
 interface MyAppComponent {
 
-    fun inject(exceptionUtil: ExceptionUtil)
+    fun inject(exceptionUtilInterface: ExceptionUtilInterface)
 
     @Component.Builder
     interface Builder {
