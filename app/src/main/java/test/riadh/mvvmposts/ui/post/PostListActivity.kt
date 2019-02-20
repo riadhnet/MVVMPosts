@@ -1,7 +1,6 @@
 package test.riadh.mvvmposts.ui.post
 
 import android.os.Bundle
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -31,9 +30,10 @@ class PostListActivity : AppCompatActivity() {
         })
 
         binding.viewModel = viewModel
+        viewModel.loadPosts()
     }
 
-    private fun showError(@StringRes errorMessage: String) {
+    private fun showError(errorMessage: String) {
         errorSnackbar = Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_INDEFINITE)
         errorSnackbar?.setAction(R.string.retry, viewModel.errorClickListener)
         errorSnackbar?.show()

@@ -1,20 +1,21 @@
 package test.riadh.mvvmposts
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockkObject
+import io.mockk.spyk
+import io.mockk.verify
 import io.reactivex.Observable
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import test.riadh.mvvmposts.app.MyApp
 import test.riadh.mvvmposts.model.Post
 import test.riadh.mvvmposts.model.PostDao
 import test.riadh.mvvmposts.model.PostRepositoryImpl
 import test.riadh.mvvmposts.ui.post.PostListViewModel
-import test.riadh.mvvmposts.utils.ExceptionUtil
+import test.riadh.mvvmposts.utils.ExceptionUtilInterface
 
 
 class PostListViewModelTest {
@@ -22,15 +23,17 @@ class PostListViewModelTest {
     @get:Rule
     val schedulers = RxImmediateSchedulerRule()
 
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
+
     @MockK
     lateinit var postApi: PostRepositoryImpl
 
     lateinit var postDao: PostDao
 
     @MockK
-    lateinit var myApp: MyApp
+    lateinit var exceptionUtil: ExceptionUtilInterface
 
-    lateinit var exceptionUtil: ExceptionUtil
 
     val post1 =
         Post(1, 1, "sunt aut facere repellat provident occaecati excepturi", "recusandae consequuntur expedita")
@@ -47,13 +50,9 @@ class PostListViewModelTest {
     @Before
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        postDao = PostDaoImpl()
-        // mockkStatic(ExceptionUtil.Companion::class)
-        // mockkStatic(ExceptionUtil::class)
-        mockkObject(ExceptionUtil)
-        every { ExceptionUtil.showError(any()) } answers { "Exception" }
-//        mockkStatic(MyApp::class)
-//        every { MyApp.instance } returns MyApp()
+
+        every { exceptionUtil.showError(any()) } returns "Error"
+
         every { postApi.getPosts() } returns Observable.just(postList)
 
     }
@@ -61,15 +60,36 @@ class PostListViewModelTest {
 
     @Test
     fun showDataFromApi() {
-        val postListViewModel = PostListViewModel(postDao, postApi)
+        //GIVEN
+        postDao = PostDaoImpl()
+        val postListViewModel = PostListViewModel(postDao, postApi, exceptionUtil)
+        //WHEN
+        postListViewModel.loadPosts()
+        //THEN
         assertEquals("verify that post was saved in data base ", postList.size, postDao.all.size)
-//        assertEquals(
-//            "Check that adapter has correct number of rows ",
-//            postList.size,
-//            postListViewModel.postListAdapter.itemCount
-//        )
+        assertEquals(
+            "Check that adapter has correct number of rows ",
+            postList.size,
+            postListViewModel.postListAdapter.itemCount
+        )
 
     }
+
+    @Test
+    fun showError() {
+        //GIVEN
+        postDao = PostDaoImpl()
+        val x = Exception()
+        every { postApi.getPosts() } returns Observable.error(x)
+        val postListViewModel = spyk(PostListViewModel(postDao, postApi, exceptionUtil), recordPrivateCalls = true)
+        //WHEN
+        postListViewModel.loadPosts()
+        //THEN
+        verify { postListViewModel invoke "onRetrievePostListError" withArguments listOf(x) }
+
+
+    }
+
 
     private class PostDaoImpl : PostDao {
         var posts = mutableListOf<Post>()
@@ -81,10 +101,6 @@ class PostListViewModelTest {
             this.posts.addAll(posts)
         }
     }
-
-//    private class ExceptionUtilImpl : ExceptionUtil {
-//
-//    }
 
 }
 

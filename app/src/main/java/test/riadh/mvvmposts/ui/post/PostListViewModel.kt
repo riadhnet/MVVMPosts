@@ -10,8 +10,13 @@ import io.reactivex.schedulers.Schedulers
 import test.riadh.mvvmposts.model.Post
 import test.riadh.mvvmposts.model.PostDao
 import test.riadh.mvvmposts.model.PostRepositoryImpl
+import test.riadh.mvvmposts.utils.ExceptionUtilInterface
 
-class PostListViewModel(private val postDao: PostDao, private val postApi: PostRepositoryImpl) : ViewModel() {
+class PostListViewModel(
+    private val postDao: PostDao,
+    private val postApi: PostRepositoryImpl,
+    private val exceptionUtil: ExceptionUtilInterface
+) : ViewModel() {
 
     private lateinit var subscription: Disposable
     val loadingVisibility: MutableLiveData<Int> = MutableLiveData()
@@ -21,20 +26,18 @@ class PostListViewModel(private val postDao: PostDao, private val postApi: PostR
 
     val errorClickListener = View.OnClickListener { loadPosts() }
 
-    init {
-        loadPosts()
-    }
 
-    private fun loadPosts() {
+    fun loadPosts() {
 
         subscription = Observable.fromCallable { postDao.all }
             .concatMap { dbPostList ->
                 if (dbPostList.isEmpty()) {
-                    postApi.getPosts().map { apiPostList ->
+                    postApi.getPosts().concatMap { apiPostList ->
                         postDao.insertAll(*apiPostList.toTypedArray())
-                        apiPostList
+                        Observable.just(apiPostList)
                     }
-                } else Observable.just(dbPostList)
+                } else
+                    Observable.just(dbPostList)
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -42,7 +45,9 @@ class PostListViewModel(private val postDao: PostDao, private val postApi: PostR
             .doOnTerminate { onRetrievePostListFinish() }
             .subscribe(
                 { result -> onRetrievePostListSuccess(result) },
-                { error -> onRetrievePostListError(error) }
+                { t ->
+                    onRetrievePostListError(t)
+                }
             )
 
     }
@@ -61,7 +66,7 @@ class PostListViewModel(private val postDao: PostDao, private val postApi: PostR
     }
 
     private fun onRetrievePostListError(error: Throwable) {
-        errorMessage.value = "toto"// ExceptionUtil.showError(error)
+        errorMessage.value = exceptionUtil.showError(error)
     }
 
     override fun onCleared() {
